@@ -15,18 +15,19 @@
 
     <!-- Question -->
     <div id="question" class="alert alert-info">
-      Question 1 : Quelle est la capitale de la France ?
+      <!-- La question s'affichera ici via JS -->
     </div>
 
     <!-- Choix des réponses -->
     <div id="choices" class="d-flex justify-content-center mb-3">
-      <button class="btn btn-outline-primary m-2" onclick="checkAnswer('Paris')">Paris</button>
-      <button class="btn btn-outline-primary m-2" onclick="checkAnswer('Lyon')">Lyon</button>
-      <button class="btn btn-outline-primary m-2" onclick="checkAnswer('Marseille')">Marseille</button>
+      <!-- Les boutons de réponses s'affichent ici via JS -->
     </div>
 
     <!-- Feedback pour la réponse -->
     <div id="feedback" class="mt-3"></div>
+
+    <!-- Bouton Suivant -->
+    <button id="nextButton" class="btn btn-primary mt-3" onclick="nextQuestion()">Suivant</button>
 
     <!-- Score -->
     <div id="score" class="mt-4">
@@ -40,35 +41,84 @@
 
 <!-- JavaScript personnalisé -->
 <script>
+  // Liste des questions
+  const questions = [
+    {
+      question: "Quelle est la capitale de la France ?",
+      choices: ["Paris", "Lyon", "Marseille"],
+      correctAnswer: "Paris"
+    },
+    {
+      question: "Quel est le plus grand océan du monde ?",
+      choices: ["Océan Atlantique", "Océan Pacifique", "Océan Indien"],
+      correctAnswer: "Océan Pacifique"
+    },
+    {
+      question: "Qui a écrit 'Les Misérables' ?",
+      choices: ["Victor Hugo", "Émile Zola", "Honoré de Balzac"],
+      correctAnswer: "Victor Hugo"
+    }
+  ];
+
+  let currentQuestionIndex = 0;
   let score = 0;
 
-  // Fonction pour vérifier la réponse
-  function checkAnswer(userAnswer) {
-    const correctAnswer = "Paris";
-    const feedbackElement = document.getElementById("feedback");
+  // Afficher la question et les réponses
+  function showQuestion() {
+    const question = questions[currentQuestionIndex];
+    document.getElementById('question').textContent = question.question;
     
-    if (userAnswer === correctAnswer) {
+    const choicesContainer = document.getElementById('choices');
+    choicesContainer.innerHTML = ''; // Clear existing choices
+
+    question.choices.forEach(choice => {
+      const button = document.createElement('button');
+      button.classList.add('btn', 'btn-outline-primary', 'm-2');
+      button.textContent = choice;
+      button.onclick = () => checkAnswer(choice);
+      choicesContainer.appendChild(button);
+    });
+
+    // Masquer le bouton Suivant au début
+    document.getElementById('nextButton').style.display = 'none';
+  }
+
+  // Vérifier la réponse
+  function checkAnswer(userAnswer) {
+    const question = questions[currentQuestionIndex];
+    const feedbackElement = document.getElementById('feedback');
+    
+    if (userAnswer === question.correctAnswer) {
       feedbackElement.innerHTML = '<div class="alert alert-success">Bonne réponse !</div>';
       score += 1;
     } else {
-      feedbackElement.innerHTML = '<div class="alert alert-danger">Mauvaise réponse, la bonne était Paris.</div>';
+      feedbackElement.innerHTML = `<div class="alert alert-danger">Mauvaise réponse. La bonne était ${question.correctAnswer}.</div>`;
     }
 
     // Mettre à jour le score
-    document.getElementById("scoreValue").textContent = score;
+    document.getElementById('scoreValue').textContent = score;
     
-    // Désactiver les boutons après la réponse
-    disableButtons();
+    // Afficher le bouton Suivant
+    document.getElementById('nextButton').style.display = 'inline-block';
   }
 
-  // Fonction pour désactiver les boutons après une réponse
-  function disableButtons() {
-    const buttons = document.querySelectorAll("#choices button");
-    buttons.forEach(button => {
-      button.disabled = true;
-      button.classList.add('disabled');
-    });
+  // Passer à la question suivante
+  function nextQuestion() {
+    currentQuestionIndex += 1;
+
+    if (currentQuestionIndex < questions.length) {
+      showQuestion(); // Afficher la prochaine question
+      document.getElementById('feedback').innerHTML = ''; // Effacer le feedback
+    } else {
+      // Afficher le score final
+      document.getElementById('question').innerHTML = '<strong>Félicitations !</strong>';
+      document.getElementById('feedback').innerHTML = `<div class="alert alert-info">Ton score final est : ${score} sur ${questions.length}</div>`;
+      document.getElementById('nextButton').style.display = 'none'; // Cacher le bouton Suivant
+    }
   }
+
+  // Initialiser le jeu
+  showQuestion();
 </script>
 
 </body>
